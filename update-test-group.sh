@@ -26,9 +26,10 @@ if [ -z "$TARGET_TAG_KEY" ]; then
 fi
 
 if [ ! -z "$TARGET_TAG_VALUE" ] ; then
-  VALUE_QUERY="and%20(device_tag/any(dt:((tag_value)%20eq%20(%27$TARGET_TAG_VALUE%27))))"
+  VALUE_QUERY="%20and%20((value)%20eq%20(%27$TARGET_TAG_VALUE%27))"
   VALUE_MSG="and value $TARGET_TAG_VALUE"
 else
+  VALUE_QUERY=""
   VALUE_MSG="with any value"
 fi
 
@@ -37,4 +38,4 @@ echo "Setting all devices with tag $TARGET_TAG_KEY $VALUE_MSG to commit $COMMIT_
 curl -X PATCH -H "authorization: Bearer $authToken"\
   -H "Content-Type: application/json" \
 	--data-binary '{"should_be_running__release":'$RELEASE_ID'}' \
-	"https://api.$BASE_URL/v5/device?\$expand=belongs_to__application(\$select=id),device_tag(\$select=id,tag_key)&\$filter=((belongs_to__application%20eq%20$APP_ID)%20and%20(device_tag/any(dt:((tag_key)%20eq%20(%27$TARGET_TAG_KEY%27))))$VALUE_QUERY)"
+	"https://api.$BASE_URL/v5/device?\$expand=belongs_to__application(\$select=id),device_tag(\$select=id,tag_key)&\$filter=((belongs_to__application%20eq%20$APP_ID)%20and%20(device_tag/any(dt:(((tag_key)%20eq%20(%27$TARGET_TAG_KEY%27))$VALUE_QUERY))))"
